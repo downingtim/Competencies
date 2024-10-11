@@ -4,6 +4,7 @@ title: "Competencies.Rmd"
 
 ## Bioinf survey data analysis v1
 ## 2024-10-01
+## contains code from GAIT
 
 ```{r}
 setwd("~/Desktop/TPIWORK/Bioinf_Competencies")

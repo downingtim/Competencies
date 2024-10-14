@@ -63,32 +63,32 @@ my_data_long2 <- my_data_long
 my_data_long2$Original_Column <- NULL
 my_data_long2 <- my_data_long2[-1,]
 # my_data_long2[my_data_long2 == "Not Applicable"] <- NA
-my_data_long2[my_data_long2 == "Not Applicable"] <- 0
+my_data_long2[my_data_long2 == "Not Applicable"] <- "0" # implicit coercion!!
 my_data_long2$Competency_Score <- as.numeric(my_data_long2$Competency_Score)
 my_data_long2$Level <- as.numeric(my_data_long2$Level)
-View(my_data_long2)
-write.csv(my_data_long2, "cleaned_long_data.v2.csv", row.names = FALSE)
+# View(my_data_long2)
+# write.csv(my_data_long2, "cleaned_long_data.v2.csv", row.names = FALSE)
 
 # Get summary statistics  
 summary_by_level <- my_data_long2 %>% group_by(Level, Competency) %>%  
   summarise(Mean_Score = mean(as.numeric(Competency_Score), na.rm=T),
             Median_Score =median(as.numeric(Competency_Score), na.rm=T),
             SD_Score = sd(as.numeric(Competency_Score), na.rm = T))
-print(summary_by_level)
+# print(summary_by_level)
 
 set1 <- na.omit(my_data_long2) %>% group_by(Competency) %>%
   summarise( Correlation = cor.test(Level, Competency_Score)$estimate,
     P_Value = cor.test(Level, Competency_Score)$p.value, .groups = 'drop')
 set1$adj_P_Value <- p.adjust(set1$P_Value, "BH", length(set1$P_Value))
 set1$Correlation <- round(set1$Correlation,2) 
-View(set1)
-write.csv(set1,  "correlations.v2.csv")
+print(set1)
+# write.csv(set1,  "correlations.v2.csv")
 
 # Calculate means for each competency and level
 mean_scores <- my_data_long2 %>% group_by(Competency, Level) %>%
   summarise(Mean_Score=mean(Competency_Score, na.rm=T), .groups='drop')
 mean_scores <- mean_scores[-77,] # remove NA
-View(mean_scores)
+print (mean_scores)
 
 # Calculate global means for each  level as baseline for comparison
 mean_level <- my_data_long2 %>% group_by(Level) %>%
@@ -112,24 +112,30 @@ mean_scores_ci <- my_data_long2 %>%
     .groups = 'drop' )
 mean_scores_ci <- mean_scores_ci[-77,] # remove NA
 
-# Create the plot with confidence intervals and global dashed mean line
-pdf("Competency_change_with_CI.v2.pdf", width=6, height=6)
-ggplot(mean_scores_ci, aes(x=Level, y=Mean_Score, group=Competency,color=Competency)) +
-  # Add the confidence interval as a shaded area
-  geom_ribbon(aes(ymin = Lower_CI, ymax = Upper_CI), fill="grey", alpha=0.2) +
-  geom_line(linewidth=1.3) +  # Draw lines for each competency
-  geom_point(size=1.2, alpha=0.8) +  # Add points for better visibility
-  # Add global mean line as a dashed black line, disable inherited aesthetics
-  geom_line(data=mean_level2, aes(x=Level, y=Mean_Score), color="black",
-            linewidth=0.8, linetype="dashed", inherit.aes = F) +
-  facet_wrap(~ Competency, labeller = label_wrap_gen(width = 25)) +  
-  labs(x = "Stage", y = "Mean Score") + ylim(1, 3) +
-  theme_minimal() +  # Use a minimal theme for better aesthetics
+set1 <- set1 %>% rename(Correlation = Correlation) # why this? 
+mean_scores_ci <- mean_scores_ci %>%
+  left_join(set1 %>% select(Competency, Correlation), by = "Competency")
+
+mean_scores_ci$Correlation <- round(mean_scores_ci$Correlation, 2)
+# Create the plot and annotate with correlation coefficients
+# Visualize with correlation value on each plot
+pdf("Competency_change_with_CI.v2.pdf", width = 6, height = 6)
+ggplot(mean_scores_ci, aes(x = Level, y = Mean_Score, group = Competency,
+                           color = Competency)) + 
+  geom_ribbon(aes(ymin = Lower_CI, ymax = Upper_CI), fill = "grey", alpha = 0.2) +
+  geom_line(linewidth = 1.3, alpha=0.7) +   
+  geom_point(size = 1.2, alpha = 0.7) +   
+  geom_line(data = mean_level2, aes(x = Level, y = Mean_Score), color = "black",
+            linewidth = 0.8, linetype = "dashed", inherit.aes = F) + 
+  facet_wrap(~ Competency) + 
+  geom_text(aes(x =2, y = 0.3, label = paste0("r=", round(Correlation, 2))), 
+            color = "black", size = 3, hjust = 0, vjust = 0) +   
+  labs(x = "Stage", y = "Mean Score") + ylim(0, 3) + theme_minimal() +  
   theme(legend.position = "bottom", 
-        strip.text = element_text(size=10, face="bold"))  
+        strip.text = element_text(size = 10, face = "bold"))
 dev.off()
 
-# get outliers from above
+##### get outliers from above
 
 # Merge the confidence intervals with the global mean for comparison
 comparison_data <- mean_scores_ci %>%
@@ -172,12 +178,12 @@ subset(unique(outliers), Comparison=="Above") # 15 instances
 # career stage progress 
 #    Q3 - "New..Collaborator.engagement."
 #    S3 - correlated with later stages - "New..Leadership."
-#    O3 - somewhat correlated with later stages - "New..Project.management."
-#    P3 - very correlated with later stages - "New..People.management..focusing.on.staff.
+#    O3 - somewhat correlated with later stages - "Project.management."
+#    P3 - correlated with later stages - "People.management..focusing.on.staff.
 #    N3 - "New..Identify.and.support.users..needs."
-#    K3 - Communicate meaningfully with a range of audiences - within and beyond your profession
+#    K3 - Communicate meaningfully with a range of audiences - within ...
 
-#### 
+#### check ranks
 
 mean_scores_ci %>% filter(Level==1) %>% arrange(desc(Mean_Score)) %>%
   select(Competency, Mean_Score)
@@ -185,6 +191,10 @@ mean_scores_ci %>% filter(Level==2) %>% arrange(desc(Mean_Score)) %>%
   select(Competency, Mean_Score)
 
 ### parallel plot
+
+mean_scores_ci <- mean_scores_ci %>%
+  group_by(Level) %>%
+  mutate(Rank = rank(-Mean_Score))  # Rank descending by Mean_Score
 
 # Ensure the data is ordered correctly
 mean_scores_ci <- mean_scores_ci[order(mean_scores_ci$Level,
@@ -206,8 +216,5 @@ ggplot(mean_scores_ci, aes(x = Level, y = Rank, group = Competency,
         strip.text = element_text(size = 18, face = "bold"))
 dev.off()
 
-
-
 ```
-
 Profile: Core facility scientist I [A3: Work at depth in at least one technical area aligned with the life sciences]	Profile: Core facility scientist I [B3: Prepare life science data for computational analysis]	Profile: Core facility scientist I [C3: Have a positive impact on scientific discovery through bioinformatics]	Profile: Core facility scientist I [D3: Use data science methods suitable for the size and complexity of the data]	Profile: Core facility scientist I [E3: Manage own and others‚Äô data according to community standards and principles]	Profile: Core facility scientist I [F3: Make appropriate use of bioinformatics tools and resources]	Profile: Core facility scientist I [G3: Contribute effectively to the design and development of user-centric bioinformatics tools and resources]	Profile: Core facility scientist I [H3: Make appropriate and efficient use of scripting and programming languages]	Profile: Core facility scientist I [I3: Construct, manage and maintain bioinformatics computing infrastructure of varying complexity]	Profile: Core facility scientist I [J3: Comply with professional, ethical, legal and social standards and codes of conduct relevant to computational biology]	Profile: Core facility scientist I [K3: Communicate meaningfully with a range of audiences - within and beyond your profession]	Profile: Core facility scientist I [L3: Work effectively in teams to accomplish a common goal]	Profile: Core facility scientist I [M3: Engage in continuing professional development in bioinformatics]

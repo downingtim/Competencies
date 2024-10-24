@@ -12,6 +12,14 @@ library(ggplot2)
 library(tidyr) 
 library(plotly) 
 library(data.table) # v1.16.0
+library(ggrepel) # v0.9.6
+
+citation("dplyr")
+citation("ggplot2")
+citation("tidyr") 
+citation("plotly") 
+citation("data.table") # v1.16.0
+citation("ggrepel")
 
 my_data <- read.csv("Results survey 1 October 2024 - Form responses 1.csv",
                     header=T)
@@ -76,13 +84,17 @@ summary_by_level <- my_data_long2 %>% group_by(Level, Competency) %>%
             SD_Score = sd(as.numeric(Competency_Score), na.rm = T))
 # print(summary_by_level)
 
+# change to Spearman's
+# keep colour scheme consistent
+
 set1 <- na.omit(my_data_long2) %>% group_by(Competency) %>%
-  summarise( Correlation = cor.test(Level, Competency_Score)$estimate,
+  summarise( Correlation = cor.test(Level, Competency_Score,
+                                    method = c(  "spearman"))$estimate, 
     P_Value = cor.test(Level, Competency_Score)$p.value, .groups = 'drop')
 set1$adj_P_Value <- p.adjust(set1$P_Value, "BH", length(set1$P_Value))
 set1$Correlation <- round(set1$Correlation,2) 
 print(set1)
-# write.csv(set1,  "correlations.v2.csv")
+write.csv(set1,  "correlations.v2.csv")
 
 # Calculate means for each competency and level
 mean_scores <- my_data_long2 %>% group_by(Competency, Level) %>%
@@ -116,22 +128,44 @@ mean_scores_ci <- mean_scores_ci %>%
   left_join(set1 %>% select(Competency, Correlation), by = "Competency")
 
 mean_scores_ci$Correlation <- round(mean_scores_ci$Correlation, 2)
-# Create the plot and annotate with correlation coefficients
-# Visualize with correlation value on each plot
+# for plotting
+competency_colors <- c(
+  "A3" = "#F28E82",  # Light pink/red
+  "B3" = "#F4A261",  # Orange
+  "C3" = "#E9C46A",  # Yellow
+  "D3" = "#A8D08D",  # Green
+  "E3" = "#A5A58D",  # Olive
+  "F3" = "#8EC07C",  # Light green
+  "G3" = "#89C4C8",  # Light cyan
+  "H3" = "#52B788",  # Deep green
+  "I3" = "#00AFFF",  # Light blue
+  "J3" = "#8B9DC3",  # Light purple
+  "K3" = "#C39BD3",  # Lavender
+  "L3" = "#B587FF",  # Light purple
+  "M3" = "#DDA0DD",  # Light pink/purple
+  "N1" = "#A78EC3",  # Light blue/purple
+  "O1" = "#C39BD3",  # Light purple
+  "P1" = "#D184DD",  # Pink
+  "Q1" = "#F7A8B8",  # Pink/purple
+  "R1" = "#F4A6B8",  # Rose pink
+  "S1" = "#EF5DA8")   # Deep pink
+
 pdf("Competency_change_with_CI.v2.pdf", width = 6, height = 6)
-ggplot(mean_scores_ci, aes(x = Level, y = Mean_Score, group = Competency,
-                           color = Competency)) + 
+ggplot(mean_scores_ci, aes(x = Level, y = Mean_Score,
+                           group = Competency, color = Competency)) + 
   geom_ribbon(aes(ymin = Lower_CI, ymax = Upper_CI), fill = "grey", alpha = 0.2) +
-  geom_line(linewidth = 1.3, alpha=0.7) +   
+  geom_line(linewidth = 1.3, alpha = 0.7) +   
   geom_point(size = 1.2, alpha = 0.7) +   
   geom_line(data = mean_level2, aes(x = Level, y = Mean_Score), color = "black",
             linewidth = 0.8, linetype = "dashed", inherit.aes = F) + 
   facet_wrap(~ Competency) + 
-  geom_text(aes(x =2, y = 0.3, label = paste0("r=", round(Correlation, 2))), 
+  geom_text(aes(x = 2, y = 0.3, label = paste0("r=", round(Correlation, 2))), 
             color = "black", size = 3, hjust = 0, vjust = 0) +   
-  labs(x = "Stage", y = "Mean Score") + ylim(0, 3) + theme_minimal() +  
+  labs(x = "Stage", y = "Mean Score") + ylim(0, 3) + 
+  theme_minimal() +  
   theme(legend.position = "bottom", 
-        strip.text = element_text(size = 10, face = "bold"))
+        strip.text = element_text(size = 10, face = "bold")) +
+  scale_color_manual(values = competency_colors)
 dev.off()
 
 ##### get outliers from above
@@ -153,33 +187,25 @@ outliers <- comparison_data %>% filter(Comparison != "Within")
 
 # Perceived as less important at the given level
 subset(unique(outliers), Comparison=="Below") # 9 instances
-# I3, P3, S3 - occurring 2+ times
-# I3 = Construct, manage and maintain bioinformatics computing infrastructure  
-# P3 = "New..People.management..focusing.on.staff.
-# S3 = "New..Leadership."
+# O1, P1, S1 - initially
 
 # Percevied as more important at the given level
 subset(unique(outliers), Comparison=="Above") # 15 instances
-# D3, F3, L3, O3 - occuring 2+ times
-# D3 = Use data science methods suitable for the size and complexity of the data
-# F3 = Make appropriate use of bioinformatics tools and resources
-# L3 = Work effectively in teams to accomplish a common goal
-# O3 = "New..Project.management."
+# D3, E3, F3, H3, L3 - initially
 
 ## correlations
 
-# Least correlated => r<0.3
+# Least correlated => r<0.24
 # needed less at managerial stage:
 #     B3 = Prepare life science data for computational analysis
 #     H3 = Make appropriate and efficient use of scripting and programming languages
 
-# more correlated =>  r > 0.51
+# more correlated =>  r > 0.5
 # career stage progress 
-#    Q3 - "New..Collaborator.engagement."
 #    S3 - correlated with later stages - "New..Leadership."
 #    O3 - somewhat correlated with later stages - "Project.management."
 #    P3 - correlated with later stages - "People.management..focusing.on.staff.
-#    N3 - "New..Identify.and.support.users..needs."
+#    Q3 - "New..Collaborator.engagement."
 #    K3 - Communicate meaningfully with a range of audiences - within ...
 
 #### check ranks
@@ -200,22 +226,24 @@ mean_scores_ci <- mean_scores_ci[order(mean_scores_ci$Level,
                                        mean_scores_ci$Rank), ]
 
 pdf("Competency_comparison.pdf", height=7, width=6)
-ggplot(mean_scores_ci, aes(x = Level, y = Rank, group = Competency,
-                           color = Competency)) +
-  geom_line(linewidth = 1, alpha = 0.3) +  
-  geom_point(size = 3, alpha = 0.8) +   
-  geom_text(aes(label = Competency), vjust = -.75, size = 3,
-            alpha = 0.9,show.legend = F) +  # Add text labels
+ggplot(mean_scores_ci, aes(x = Level, y = Rank, group = Competency, color = Competency)) +
+  geom_line(linewidth = 1.2, alpha = 0.2) +  
+  geom_point(size = 3, alpha = 0.75) +   
+  geom_text_repel(aes(label = Competency), vjust = -.5, size = 3.5,
+                  alpha = 0.9, show.legend = F, 
+                  nudge_y = 0.3, # Optional: small vertical adjustment
+                  max.overlaps = 10) +  # Add text labels without overlap
   scale_y_reverse(breaks = seq(1, max(mean_scores_ci$Rank)),
                   labels = seq(1, max(mean_scores_ci$Rank))) +
-  labs(x = "Level", y = "Rank importance") +
+  labs(x = "Stage", y = "Ranked importance") +
   theme_minimal() +  # Apply a clean theme
   theme(legend.position = "right", 
         legend.title = element_blank(), 
-        strip.text = element_text(size = 18, face = "bold"))
+        strip.text = element_text(size = 18, face = "bold")) +
+  scale_color_manual(values = competency_colors)
 dev.off()
 
-### pairwise correlations # not useful
+### pairwise correlations 
 
 my_data_wide <- my_data_long2 %>% 
   spread(key=Competency, value=Competency_Score) %>%
@@ -228,7 +256,7 @@ correlation_test <- function(data) {
   p_matrix <- matrix(NA, n, n)
   for (i in 1:(n-1)) {
     for (j in (i+1):n) {
-      res <- cor.test(unlist(data[,i]),unlist(data[,j]), method="pearson",
+      res <- cor.test(unlist(data[,i]),unlist(data[,j]), method="spearman",
                       use = "pairwise.complete.obs")
       cor_matrix[i, j] <- res$estimate
       p_matrix[i, j] <- res$p.value  } }
@@ -258,10 +286,8 @@ cor_melt %>%  ggplot(aes(Var1, Var2, fill = value)) +   geom_tile() +
         axis.text.y = element_text())
 dev.off()
 
-# get top ones
-subset(cor_melt, value>0.75)
-# get lower ones
-subset(cor_melt, value<.3)
+subset(cor_melt, value>0.75) # get top ones
+subset(cor_melt, value<.3)  # get lower ones
 
 ## PCA
 
@@ -269,26 +295,6 @@ competency_data_wide2 <- t(my_data_wide2)[c(-1,-2),]# get constant cols
 constant_cols <- apply(competency_data_wide2, 2, function(x) var(x) == 0) 
 competency_data_wide2_clean <- competency_data_wide2[, !constant_cols]  
 pca_result <- prcomp(competency_data_wide2_clean, scale = T) 
-competency_colors <- c(
-  "A3" = "#F28E82",  # Light pink/red
-  "B3" = "#F4A261",  # Orange
-  "C3" = "#E9C46A",  # Yellow
-  "D3" = "#A8D08D",  # Green
-  "E3" = "#A5A58D",  # Olive
-  "F3" = "#8EC07C",  # Light green
-  "G3" = "#89C4C8",  # Light cyan
-  "H3" = "#52B788",  # Deep green
-  "I3" = "#00AFFF",  # Light blue
-  "J3" = "#8B9DC3",  # Light purple
-  "K3" = "#C39BD3",  # Lavender
-  "L3" = "#B587FF",  # Light purple
-  "M3" = "#DDA0DD",  # Light pink/purple
-  "N1" = "#A78EC3",  # Light blue/purple
-  "O1" = "#C39BD3",  # Light purple
-  "P1" = "#D184DD",  # Pink
-  "Q1" = "#F7A8B8",  # Pink/purple
-  "R1" = "#F4A6B8",  # Rose pink
-  "S1" = "#EF5DA8")   # Deep pink
 
 pdf("PCA.pdf", width=7, height=4)
 plot(pca_result$x[, 1], pca_result$x[, 2], cex=1.4, pch = 19, xlim=c(-10,22),
@@ -297,7 +303,7 @@ plot(pca_result$x[, 1], pca_result$x[, 2], cex=1.4, pch = 19, xlim=c(-10,22),
      col = competency_colors[rownames(pca_result$x)] )
 grid(lty="dotted", lwd=2) 
 text(pca_result$x[, 1], pca_result$x[, 2], labels = rownames(pca_result$x), 
-     pos = c(3,1,1,1,1,1,3,1,3,1,2,1,1,4,1,1,1,2,3), cex = 1.3,
+     pos = c(3,1,1,1,4,1,3,1,3,1,2,1,1,4,1,1,1,2,3), cex = 1.3,
      col = competency_colors[rownames(pca_result$x)]) 
 legend("topright", legend = rownames(pca_result$x), ncol=2,
        col = competency_colors[rownames(pca_result$x)], pch = 19, cex=1)

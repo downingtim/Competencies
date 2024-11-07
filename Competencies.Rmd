@@ -74,8 +74,77 @@ my_data_long2 <- my_data_long2[-1,]
 my_data_long2[my_data_long2 == "Not Applicable"] <- "0" # implicit coercion!!
 my_data_long2$Competency_Score <- as.numeric(my_data_long2$Competency_Score)
 my_data_long2$Level <- as.numeric(my_data_long2$Level)
-# View(my_data_long2)
+View(my_data_long2)
 # write.csv(my_data_long2, "cleaned_long_data.v2.csv", row.names = FALSE)
+
+## heatmap
+
+mode_stat <- function(x) {  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))] }
+
+# Use the custom mode function in your summarise() call
+my_data_summary <- my_data_long2 %>%
+  group_by(Competency, Level) %>%
+  summarise(mean_score = mode_stat(Competency_Score)) %>%
+  ungroup() %>%
+  mutate(Competency = factor(Competency, levels = sort(unique(Competency)))) 
+my_data_summary <- my_data_summary[-77,]
+my_data_summary <- my_data_summary %>% mutate(mean_score = factor(mean_score))
+
+pdf("heatmap.mode.v1.pdf", width = 3, height = 6)
+ggplot(my_data_summary, aes(x=factor(Level), y=Competency, fill=mean_score)) +
+  geom_tile(color = "white") +  
+  geom_text(aes(label = mean_score), color = "white", size = 3) +  
+  labs(x = "Level", y = "Competency") + theme_minimal() +
+  scale_y_discrete(limits = rev(levels(my_data_summary$Competency))) +   
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 10)) + coord_fixed() +
+  scale_fill_manual(values = c("0"="black", "1" = "grey20", "2" = "grey40",
+                  "3" = "grey60"), name = "Score") 
+dev.off()
+
+# black to white
+pdf("heatmap.mode.v2.pdf", width = 3, height = 6)
+ggplot(my_data_summary, aes(x=factor(Level), y=Competency, fill=mean_score)) +
+  geom_tile(color = "white") +  
+  geom_text(aes(label = mean_score), color = "white", size = 3) +  
+  labs(x = "Level", y = "Competency") + theme_minimal() +
+  scale_y_discrete(limits = rev(levels(my_data_summary$Competency))) +   
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 10)) + coord_fixed() +
+  scale_fill_manual(values = c("0"="grey60", "1" = "grey40", "2" = "grey20",
+                  "3" = "black"), name = "Score")  
+dev.off()
+
+my_data_summary <- my_data_long2 %>% group_by(Competency, Level) %>%
+  summarise(mean_score = median(Competency_Score, na.rm =T)) %>% ungroup() %>%
+  mutate(Competency = factor(Competency, levels = sort(unique(Competency))))
+my_data_summary <- my_data_summary[-77,] 
+
+pdf("heatmap.median.v1.pdf", width = 3, height = 6)
+ggplot(my_data_summary, aes(x=factor(Level), y=Competency, fill=mean_score)) +
+  geom_tile(color = "white") +  
+  geom_text(aes(label = mean_score), color = "white", size = 3) +  
+  labs(x = "Level", y = "Competency") + theme_minimal() +
+  scale_y_discrete(limits = rev(levels(my_data_summary$Competency))) +   
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 10)) + coord_fixed()  +
+  scale_fill_gradient(low = "grey70", high = "black", limits = c(0, 3),
+  name="Score")
+dev.off()
+
+# black to white
+pdf("heatmap.median.v2.pdf", width = 3, height = 6)
+ggplot(my_data_summary, aes(x=Level, y=Competency, fill=mean_score)) +
+  geom_tile(color = "white") +  
+  geom_text(aes(label = mean_score), color = "white", size = 3) +  
+  labs(x = "Level", y = "Competency") + theme_minimal() +
+  scale_y_discrete(limits = rev(levels(my_data_summary$Competency))) +   
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 10)) + coord_fixed()  +
+  scale_fill_gradient(low = "black", high = "grey70", limits = c(0, 3),
+  name="Score")
+dev.off()
 
 # Get summary statistics  
 summary_by_level <- my_data_long2 %>% group_by(Level, Competency) %>%  

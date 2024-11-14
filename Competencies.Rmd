@@ -237,6 +237,16 @@ ggplot(mean_scores_ci, aes(x = Level, y = Mean_Score,
   scale_color_manual(values = competency_colors)
 dev.off()
 
+pdf("Competency_change_with_CI.v3.pdf", width = 4, height = 5)
+ggplot(mean_scores_ci, aes(x = Level, y = Mean_Score,
+                           group = Competency, color = Competency)) + 
+  geom_point(size =1.8) +   facet_wrap(~ Competency) + 
+  labs(x = "Stage", y = "Mean Score") + ylim(0, 3) + theme_minimal() +  
+  theme(legend.position = "bottom", 
+        strip.text = element_text(size = 12, face = "bold")) +
+  scale_color_manual(values = competency_colors)
+dev.off()
+
 ##### get outliers from above
 
 # Merge the confidence intervals with the global mean for comparison

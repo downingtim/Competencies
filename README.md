@@ -10,6 +10,8 @@ Figure 3. A heatmap of the pairwise correlation of the competencies based on Spe
 
 Figure 4. Principal components (PC) analysis of the correlations across the competency data shown across PC1 (accounting for 32% of all variation) and PC (10%). 
 
+Figure 5. The compentencies' mean survey score for each career stage where I is shown by filled circles, II by inverted triangles, stage III by boxes, and the managerial stage by the stars.
+
 
 References:
 

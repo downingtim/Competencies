@@ -47,25 +47,25 @@ my_data_long <- my_data_long %>% mutate(Level = case_when(
 
 # Extract competency labels (like A3, B3, C3) from the Original_Column names
 my_data_long <- my_data_long %>% mutate(Competency = case_when(
-    grepl("\\.A3\\.", Original_Column) ~ "A",
-    grepl("\\.B3\\.", Original_Column) ~ "B",
-    grepl("\\.C3\\.", Original_Column) ~ "C",
-    grepl("\\.D3\\.", Original_Column) ~ "D",
-    grepl("\\.E3\\.", Original_Column) ~ "E",
-    grepl("\\.F3\\.", Original_Column) ~ "F",
-    grepl("\\.G3\\.", Original_Column) ~ "G",
-    grepl("\\.H3\\.", Original_Column) ~ "H",
-    grepl("\\.I3\\.", Original_Column) ~ "I",
-    grepl("\\.J3\\.", Original_Column) ~ "J",
-    grepl("\\.K3\\.", Original_Column) ~ "K",
-    grepl("\\.L3\\.", Original_Column) ~ "L",
-    grepl("\\.M3\\.", Original_Column) ~ "M",
-    grepl("New..Identify.and.support.users..needs.", Original_Column) ~ "N",
-    grepl("New..Project.management.", Original_Column) ~ "O",
-    grepl("New..People.management..focusing.on.staff..",Original_Column)~"P",
-    grepl("New..Collaborator.engagement.", Original_Column) ~ "Q",
-    grepl("New..Training.", Original_Column) ~ "R",
-    grepl("New..Leadership.", Original_Column) ~ "S" ))
+    grepl("\\.A3\\.", Original_Column) ~ "A3",
+    grepl("\\.B3\\.", Original_Column) ~ "B3",
+    grepl("\\.C3\\.", Original_Column) ~ "C3",
+    grepl("\\.D3\\.", Original_Column) ~ "D3",
+    grepl("\\.E3\\.", Original_Column) ~ "E3",
+    grepl("\\.F3\\.", Original_Column) ~ "F3",
+    grepl("\\.G3\\.", Original_Column) ~ "G3",
+    grepl("\\.H3\\.", Original_Column) ~ "H3",
+    grepl("\\.I3\\.", Original_Column) ~ "I3",
+    grepl("\\.J3\\.", Original_Column) ~ "J3",
+    grepl("\\.K3\\.", Original_Column) ~ "K3",
+    grepl("\\.L3\\.", Original_Column) ~ "L3",
+    grepl("\\.M3\\.", Original_Column) ~ "M3",
+    grepl("New..Identify.and.support.users..needs.", Original_Column) ~ "N1",
+    grepl("New..Project.management.", Original_Column) ~ "O1",
+    grepl("New..People.management..focusing.on.staff..",Original_Column)~"P1",
+    grepl("New..Collaborator.engagement.", Original_Column) ~ "Q1",
+    grepl("New..Training.", Original_Column) ~ "R1",
+    grepl("New..Leadership.", Original_Column) ~ "S1" ))
 
 my_data_long2 <- my_data_long
 my_data_long2$Original_Column <- NULL
@@ -75,7 +75,7 @@ my_data_long2[my_data_long2 == "Not Applicable"] <- "0" # implicit coercion!!
 my_data_long2$Competency_Score <- as.numeric(my_data_long2$Competency_Score)
 my_data_long2$Level <- as.numeric(my_data_long2$Level)
 View(my_data_long2)
-# write.csv(my_data_long2, "cleaned_long_data.v2.csv", row.names = FALSE)
+ write.csv(my_data_long2, "cleaned_long_data.v2.csv", row.names = FALSE)
 
 ## heatmap
 
@@ -199,25 +199,25 @@ mean_scores_ci <- mean_scores_ci %>%
 mean_scores_ci$Correlation <- round(mean_scores_ci$Correlation, 2)
 # for plotting
 competency_colors <- c(
-  "A" = "#F28E82",  # Light pink/red
-  "B" = "#F4A261",  # Orange
-  "C" = "#E9C46A",  # Yellow
-  "D" = "#A8D08D",  # Green
-  "E" = "#A5A58D",  # Olive
-  "F" = "#8EC07C",  # Light green
-  "G" = "#89C4C8",  # Light cyan
-  "H" = "#52B788",  # Deep green
-  "I" = "#00AFFF",  # Light blue
-  "J" = "#8B9DC3",  # Light purple
-  "K" = "#C39BD3",  # Lavender
-  "L" = "#B587FF",  # Light purple
-  "M" = "pink",  # Light pink/purple
-  "N" = "black",  # Light blue/purple
-  "O" = "grey70",  # Light purple
-  "P" = "grey40",  # Pink
-  "Q" = "yellow",  # Pink/purple
-  "R" = "yellowgreen",  # Rose pink
-  "S" = "#E9C35B")   # Deep pink
+  "A3" = "#F28E82",  # Light pink/red
+  "B3" = "#F4A261",  # Orange
+  "C3" = "#E9C46A",  # Yellow
+  "D3" = "#A8D08D",  # Green
+  "E3" = "#A5A58D",  # Olive
+  "F3" = "#8EC07C",  # Light green
+  "G3" = "#89C4C8",  # Light cyan
+  "H3" = "#52B788",  # Deep green
+  "I3" = "#00AFFF",  # Light blue
+  "J3" = "#8B9DC3",  # Light purple
+  "K3" = "#C39BD3",  # Lavender
+  "L3" = "#B587FF",  # Light purple
+  "M3" = "pink",  # Light pink/purple
+  "N1" = "black",  # Light blue/purple
+  "O1" = "grey70",  # Light purple
+  "P1" = "grey40",  # Pink
+  "Q1" = "yellow",  # Pink/purple
+  "R1" = "yellowgreen",  # Rose pink
+  "S1" = "#E9C35B")   # Deep pink
 
 pdf("Fig_1_Competency_change_with_CI.pdf", width = 6, height = 6)
 ggplot(mean_scores_ci, aes(x = Level, y = Mean_Score,
@@ -278,11 +278,11 @@ outliers <- comparison_data %>% filter(Comparison != "Within")
 # View the output: possible 19x4 (76 instances in total)
 
 # Perceived as less important at the given level
-subset(unique(outliers), Comparison=="Below") # 9 instances
+subset(unique(outliers), Comparison=="Below") # 11 instances
 # O1, P1, S1 - initially
 
 # Percevied as more important at the given level
-subset(unique(outliers), Comparison=="Above") # 15 instances
+subset(unique(outliers), Comparison=="Above") # 16 instances
 # D3, E3, F3, H3, L3 - initially
 
 ## correlations

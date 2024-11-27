@@ -10,7 +10,9 @@ Figure 3. A heatmap of the pairwise correlation of the competencies based on Spe
 
 Figure 4. Principal components (PC) analysis of the correlations across the competency data shown across PC1 (accounting for 32% of all variation) and PC (10%). 
 
-Figure 5. The compentencies' mean survey score for each career stage where I is shown by filled circles, II by inverted triangles, stage III by boxes, and the managerial stage by the stars.
+Figure 5. The competencies' mean survey score for each career stage where I is shown by grey circles, II by inverted blue triangles, stage III by navy squares, and the (M) managerial stage by filled orange circles. The competencies are grouped into the existing basic ones (A3-C3), existing transversal set (D3-M3) and new aspects added by this study (N1-S1).
+
+
 
 
 References:

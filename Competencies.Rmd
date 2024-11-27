@@ -237,27 +237,89 @@ ggplot(mean_scores_ci, aes(x = Level, y = Mean_Score,
   scale_color_manual(values =competency_colors)
 dev.off()
 
-m2 = mean_scores_ci %>% filter(Level==2)
-m3 = mean_scores_ci %>% filter(Level==3)
-m4 = mean_scores_ci %>% filter(Level==4)
-pdf("Fig_5_Competency_means.pdf", width = 4, height = 5)
-mean_scores_ci %>%  filter(Level == 1) %>%
-  ggplot(aes(x = Competency, y = Mean_Score, group = Competency,
-             color = Competency)) + 
-  geom_point(size = 1.8, alpha = .8, aes(shape = "I")) + 
-  geom_point(data = m2, aes(x = Competency, y = Mean_Score,
-        color = Competency, shape = "II"), size = 1.8, alpha = .8) + 
-  geom_point(data = m3, aes(x = Competency, y = Mean_Score,
-        color = Competency, shape = "III"), size = 1.8, alpha = .8) + 
-  geom_point(data = m4, aes(x = Competency, y = Mean_Score,
-      color = Competency, shape = "IV managerial"), size = 1.8, alpha = .8) + 
-  labs(x = "Stage", y = "Mean Score") +  ylim(0, 3) + theme_minimal() +  
-  theme(legend.position = "bottom",  legend.box = "vertical", 
-        strip.text = element_text(size = 12, face = "bold")) +
-  scale_color_manual(values=competency_colors, guide=guide_legend(order=1))+
-  scale_shape_manual( name = "Career",
-    values=c("I" = 1, "II"=6, "III"=7, "IV managerial"=8),
-    guide = guide_legend(order=1, nrow=1) )
+mean_scores_ci <- mean_scores_ci %>%
+  mutate(Competency_Group = case_when(
+    Competency %in% c("A3", "B3", "C3") ~ "Group 1: A-C",
+    Competency %in% c("D3", "E3", "F3", "G3", "H3", "I3", "J3", "K3", "L3", "M3") ~ "Group 2: D-M",
+    Competency %in% c("N1", "O1", "P1", "Q1", "R1", "S1") ~ "Group 3: N-S" ))
+
+m2 <- mean_scores_ci %>% filter(Level == 2)
+m3 <- mean_scores_ci %>% filter(Level == 3)
+m4 <- mean_scores_ci %>% filter(Level == 4)
+pdf("Fig_5_Competency_means.pdf", width = 6, height = 5)
+mean_scores_ci %>% filter(Level == 1) %>%
+  ggplot(aes(x = Competency, y = Mean_Score, group = Competency)) + 
+  geom_point(size = 5, alpha=0.5, aes(color = "I", shape = "I", fill = "I"),
+             show.legend = TRUE) +
+  geom_point(data = m2, aes(x = Competency, y = Mean_Score, color = "II",
+         shape = "II", fill = "II"), size = 5, alpha=0.5, show.legend = T) +
+  geom_point(data = m3, aes(x = Competency, y = Mean_Score, color = "III",
+           shape = "III", fill = "III"), size = 5, alpha=0.5, show.legend =T)+
+  geom_point(data = m4, alpha=0.7, aes(x=Competency, y=Mean_Score,
+          color="M managerial", shape = "M managerial", fill ="M managerial"), 
+             size = 5, stroke = 1.5, show.legend = TRUE) +  
+  geom_text(data = m4, aes(x = Competency, y = Mean_Score, label = "M"), 
+            color = "black", size = 4, fontface = "bold", show.legend =F) +
+  labs(x = "Competency", y = "Mean Score") +  ylim(0, 3) + theme_minimal() +  
+  theme( legend.position = "bottom", legend.box = "vertical", 
+    panel.spacing.x = unit(1, "lines"), strip.text = element_blank() ) +
+  scale_color_manual( name = "Career",  guide = guide_legend(order = 1), 
+    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
+               "M managerial" = "orange")) +
+  scale_fill_manual( name = "Career",    guide = guide_legend(order = 1),
+    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
+               "M managerial" = "orange")) +
+  scale_shape_manual( name = "Career",  guide = guide_legend(order = 1),
+    values = c("I" = 21, "II" = 24, "III" = 22, "M managerial" = 21)) +
+  facet_grid(    ~Competency_Group, scales = "free_x",  space = "free_x" )
+dev.off()
+
+pdf("Fig_5_Competency_means_transposed.pdf", width =5, height =6)
+mean_scores_ci %>% 
+  filter(Level == 1) %>%
+  ggplot(aes(y = Competency, x = Mean_Score, group = Competency)) + 
+  geom_point(size = 5, alpha = 0.5, aes(color = "I", shape = "I", fill = "I"), show.legend = TRUE) +
+  geom_point(data = m2, aes(y = Competency, x = Mean_Score, color = "II", shape = "II", fill = "II"), 
+             size = 5, alpha = 0.5, show.legend = TRUE) +
+  geom_point(data = m3, aes(y = Competency, x = Mean_Score, color = "III", shape = "III", fill = "III"), 
+             size = 5, alpha = 0.5, show.legend = TRUE) +
+  geom_point(data = m4, alpha = 0.7, aes(y = Competency, x = Mean_Score, color = "M managerial", shape = "M managerial", fill = "M managerial"), 
+             size = 5, stroke = 1.5, show.legend = TRUE) +  
+  geom_text(data = m4, aes(y = Competency, x = Mean_Score, label = "M"), 
+            color = "black", size = 4, fontface = "bold", show.legend = FALSE) +
+  labs(y = "Competency", x = "Mean Score") +  
+  xlim(0, 3) +  
+  theme_minimal() +  
+  theme(
+    legend.position = "bottom", 
+    legend.box = "vertical", 
+    panel.spacing.y = unit(1, "lines"), 
+    strip.text = element_blank()
+  ) +
+  scale_color_manual(
+    name = "Career",
+    guide = guide_legend(order = 1), 
+    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy", "M managerial" = "orange")
+  ) +
+  scale_fill_manual(
+    name = "Career", 
+    guide = guide_legend(order = 1),
+    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy", "M managerial" = "orange")
+  ) +
+  scale_shape_manual(
+    name = "Career", 
+    guide = guide_legend(order = 1),
+    values = c("I" = 21, "II" = 24, "III" = 22, "M managerial" = 21)
+  ) +
+  facet_grid(
+    Competency_Group ~ ., 
+    scales = "free_y", 
+    space = "free_y"
+  ) +
+  scale_y_discrete(
+    limits = function(x) rev(x)  # Dynamically reverse order for each group
+  )
+
 dev.off()
 
 ##### get outliers from above

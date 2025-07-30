@@ -75,7 +75,7 @@ my_data_long2[my_data_long2 == "Not Applicable"] <- "0" # implicit coercion!!
 my_data_long2$Competency_Score <- as.numeric(my_data_long2$Competency_Score)
 my_data_long2$Level <- as.numeric(my_data_long2$Level)
 View(my_data_long2)
- write.csv(my_data_long2, "cleaned_long_data.v2.csv", row.names = FALSE)
+write.csv(my_data_long2, "cleaned_long_data.v2.csv", row.names = FALSE)
 
 ## heatmap
 
@@ -244,12 +244,12 @@ mean_scores_ci <- mean_scores_ci %>%
     Competency %in% c("G3", "H3", "I3") ~ "G3-I3: Computer science",
     Competency %in% c("J3", "K3", "L3", "M3") ~ "J3-M3: Professional conduct",
     Competency %in% c("N1", "O1", "P1", "Q1", "R1", "S1") ~
-      "N1-S1: Strategy/Management" ))
+      "N1-S1: Core Facility-focused" )) # Strategy/Management
 
 m2 <- mean_scores_ci %>% filter(Level == 2)
 m3 <- mean_scores_ci %>% filter(Level == 3)
 m4 <- mean_scores_ci %>% filter(Level == 4)
-pdf("Fig_5_Competency_means.pdf", width =10.5, height = 5)
+pdf("Fig_5_Competency_means.CFF2.pdf", width =10.5, height = 5)
 mean_scores_ci %>% filter(Level == 1) %>%
   ggplot(aes(x = Competency, y = Mean_Score, group = Competency)) + 
   geom_point(size = 5, alpha=0.5, aes(color = "I", shape = "I", fill = "I"),
@@ -267,17 +267,50 @@ mean_scores_ci %>% filter(Level == 1) %>%
   theme( legend.position = "bottom", legend.box = "vertical", 
     panel.spacing.x = unit(1, "lines"), legend.subtitle=element_text(size=4))+
   scale_color_manual( name = "Career",  guide = guide_legend(order = 1), 
-    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
-               "M managerial" = "orange")) +
+    values = c("I" = "#8ecae6", "II" = "#219ebc", "III" = "#023047",
+               "M managerial" = "#ee9b00") )  +
   scale_fill_manual( name = "Career",    guide = guide_legend(order = 1),
-    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
-               "M managerial" = "orange")) +
+    values = c("I" = "#8ecae6", "II" = "#219ebc", "III" = "#023047",
+               "M managerial" = "#ee9b00") ) +
   scale_shape_manual( name = "Career",  guide = guide_legend(order = 1),
     values = c("I" = 21, "II" = 24, "III" = 22, "M managerial" = 21)) +
   facet_grid(    ~Competency_Group, scales = "free_x",  space = "free_x" )
 dev.off()
 
-pdf("Fig_5_Competency_means_transposed.pdf", width =5, height =6)
+pdf("Fig_5_Competency_means.2.pdf", width =6, height = 5)
+mean_scores_ci %>% filter(Level == 1) %>%
+  ggplot(aes(x = Competency, y = Mean_Score, group = Competency)) + 
+  geom_point(size = 5, alpha=0.5, aes(color = "I", shape = "I", fill = "I"),
+             show.legend = TRUE) +
+  geom_point(data = m2, aes(x = Competency, y = Mean_Score, color = "II",
+         shape = "II", fill = "II"), size = 5, alpha=0.5, show.legend = T) +
+  geom_point(data = m3, aes(x = Competency, y = Mean_Score, color = "III",
+           shape = "III", fill = "III"), size = 5, alpha=0.5, show.legend =T)+
+  geom_point(data = m4, alpha=0.7, aes(x=Competency, y=Mean_Score,
+          color="M managerial", shape = "M managerial", fill ="M managerial"), 
+             size = 5, stroke = 1.5, show.legend = TRUE) +  
+  geom_text(data = m4, aes(x = Competency, y = Mean_Score, label = "M"), 
+            color = "black", size = 4, fontface = "bold", show.legend =F) +
+  labs(x = "Competency", y = "Mean Score") +  ylim(0, 3) + theme_minimal() +  
+  theme( legend.position = "bottom", legend.box = "vertical", 
+    panel.spacing.x = unit(1, "lines"), strip.text = element_blank() )+
+  scale_color_manual( name = "Career",  guide = guide_legend(order = 1), 
+    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
+               "M managerial" = "orange")) +
+  scale_fill_manual( name = "Career",    guide = guide_legend(order = 1),
+    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
+               "M managerial" = "orange")) +
+    #  values = c("I" = "#8ecae6", "II" = "#219ebc", "III" = "#023047",
+     #          "M managerial" = "#ee9b00") )  +
+  #scale_fill_manual( name = "Career",    guide = guide_legend(order = 1),
+   # values = c("I" = "#8ecae6", "II" = "#219ebc", "III" = "#023047",
+  #             "M managerial" = "#ee9b00") ) +
+  scale_shape_manual( name = "Career",  guide = guide_legend(order = 1),
+    values = c("I" = 21, "II" = 24, "III" = 22, "M managerial" = 21)) +
+  facet_grid(    ~Competency_Group, scales = "free_x",  space = "free_x" )
+dev.off()
+
+pdf("Fig_5_Competency_means_transposed.2.pdf", width =5, height =6)
 mean_scores_ci %>%  filter(Level == 1) %>%
   ggplot(aes(y = Competency, x = Mean_Score, group = Competency)) + 
   geom_point(size = 5, alpha = 0.5, aes(color = "I", shape = "I", fill = "I"),
@@ -297,11 +330,16 @@ mean_scores_ci %>%  filter(Level == 1) %>%
   theme( legend.position = "bottom",  legend.box = "vertical", 
     panel.spacing.y = unit(1, "lines"), strip.text = element_blank() ) +
   scale_color_manual( name = "Career", guide = guide_legend(order = 1), 
-    values =c("I"="lightblue4", "II"="blue", "III"="navy",
-              "M managerial"="orange")) +
-  scale_fill_manual(name = "Career",  guide = guide_legend(order = 1),
-    values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
-               "M managerial" = "orange") ) +
+ #   values =c("I"="lightblue4", "II"="blue", "III"="navy",
+ #             "M managerial"="orange")) +
+ # scale_fill_manual(name = "Career",  guide = guide_legend(order = 1),
+ #   values = c("I" = "lightblue4", "II" = "blue", "III" = "navy",
+  #             "M managerial" = "orange") ) +
+    values = c("I" = "#8ecae6", "II" = "#219ebc", "III" = "#023047",
+               "M managerial" = "#ee9b00") )  +
+  scale_fill_manual( name = "Career",    guide = guide_legend(order = 1),
+    values = c("I" = "#8ecae6", "II" = "#219ebc", "III" = "#023047",
+               "M managerial" = "#ee9b00") ) +
   scale_shape_manual(name = "Career", guide = guide_legend(order = 1),
     values = c("I" = 21, "II" = 24, "III" = 22, "M managerial" = 21) ) +
   facet_grid( Competency_Group ~ ., scales = "free_y", space = "free_y") +

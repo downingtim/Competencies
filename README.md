@@ -2,17 +2,13 @@ We examined 53 survey responses spanning 4 levels across each of the 19 competen
 
 Heatmaps. The mode or median for each competency score across the career levels.
 
-Figure 1. The correlation of career stage (x-axes) with mean competency score. The r values denote Spearman's rank correlation coefficient for each competency. The thin coloured lines per plot show the 95% confidence intervals. The black dashed lined is the average correlation pattern across competencies. 
+Figure 2A. The competencies' mean survey scores: the correlation of career stage (x-axes) with mean competency score. The r values denote Spearman's rank correlation coefficient for each competency. The thin coloured lines per plot show the 95% confidence intervals. The black dashed line is the average correlation pattern across competencies.
 
-Figure 2. The competencies ranked importance at each career stage with lines representing the change in stages. 
+Figure 2C. The competencies' mean survey scores: competencies’ mean scores for each career stage where scientist I is shown by grey circles, scientist II by blue triangles, scientist III by navy squares, and the (M) managerial stage by filled orange circles. The competencies are grouped into those related to: bioscience (A3-C3), data science (D3-F3), computer science (G3-I3), professional conduct (J3-M3) and the core-facility-focused competencies proposed by this study (N1-S1).
 
-Figure 3. A heatmap of the pairwise correlation of the competencies based on Spearman's rank correlation coefficient. The range is from 0 (blue) to 0.5 (white) to 1.0 (red). The correlation values are shown.
+Figure 3. The pairwise correlations between competencies based on Spearman's rank correlation coefficient. The range is from 0 (blue) to 0.5 (white) to 1.0 (red). The correlation values are shown for each pair.
 
-Figure 4. Principal components (PC) analysis of the correlations across the competency data shown across PC1 (accounting for 32% of all variation) and PC (10%). 
-
-Figure 5. The competencies' mean survey score for each career stage where I is shown by grey circles, II by inverted blue triangles, stage III by navy squares, and the (M) managerial stage by filled orange circles. The competencies are grouped into the existing basic ones (A3-C3), existing transversal set (D3-M3) and new aspects added by this study (N1-S1).
-
-
+Figure 4. Principal component (PC) analysis of the correlations across the competency data shown across PC1 (accounting for 32% of all variation) and PC (accounting for 10% of all variation).
 
 
 References:

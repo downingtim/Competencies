@@ -3,7 +3,7 @@ We examined 53 survey responses spanning 4 levels across each of the 19 competen
 
 Figure Legends
 
-Figure 1: Geographical distribution of (A) participants in the working group that developed the new competencies for core facility scientists and (B) respondents to the survey. Survey responses provided the dataset on which figures 2–4 are based.
+Fig 1. Geographical distribution of (A) participants in the working group that developed the new competencies for core facility scientists and (B) respondents to the survey. Survey responses provided the dataset on which figures 2–4 are based.
 
 Fig 2A. The competencies' mean survey scores: the correlation of career stage (x-axes) with mean competency score. The r values denote Spearman's rank correlation coefficient for each competency. The thin coloured lines per plot show the 95% confidence intervals. The black dashed line is the average correlation pattern across competencies.
 
@@ -15,6 +15,7 @@ Fig 3. The pairwise correlations between competencies based on Spearman's rank c
 
 Fig 4. Principal component (PC) analysis of the correlations across the competency data shown across PC1 (accounting for 32% of all variation) and PC (accounting for 10% of all variation).
 
+Figure authors: Tim Downing (Pirbright Institute, UK) & Lara Nonell (Vall d'Hebron Institute of Oncolog, Spain)
 
 References:
 
